@@ -1,105 +1,76 @@
-# Crinkle
+# Crinkle — desktop releases
 
-Crinkle is a chat-first AI software studio. You describe what you want in plain language,
-connect the AI subscriptions or API keys you already have, and a team of specialized
-agents plans, builds, tests, and reviews real software for you in an isolated workspace.
+Official download repository for **[Crinkle](https://www.crinkle.dev)**, the autonomous
+AI software team that runs on your machine and refuses to call a project done until the
+evidence passes.
 
-It's designed so that non-technical users can drive it like a team chat app, while the
-technical details — file changes, commands, test results, logs — stay available without
-getting in the way.
+This repo hosts installers and their checksums only. The Crinkle application source is
+**not** distributed here. Product site: [crinkle.dev](https://www.crinkle.dev) ·
+benchmarks and methodology: [crinkle.dev/benchmarks](https://www.crinkle.dev/benchmarks.html).
 
-## What it does
+> In independent grading, the baseline agent made **8 false completion claims** across the
+> hard suite; Crinkle made **zero** — when the proof was incomplete, it did not call the
+> project done. [See the benchmarks →](https://www.crinkle.dev/benchmarks.html)
 
-- **Bring your own AI.** Connect OpenAI, Claude, Gemini, xAI/Grok, OpenRouter, Groq,
-  DeepSeek, Together, Mistral, Perplexity, local models (Ollama / LM Studio / Open WebUI),
-  or the Claude Code / Codex CLIs. Manual ChatGPT handoff is available with no API key.
-  Keys are encrypted at rest.
-- **A team of agents.** The Manager, Builder, and Reviewer are the core team; a Designer,
-  Advisor, Security reviewer, and Web operator can be added. Each agent's
-  role is independent of which AI powers it — route each agent to whatever model you like,
-  or turn on **smart auto-routing** and let the Manager pick the best model per task.
-- **Autonomous build loop.** The Manager turns your idea into acceptance criteria, assigns work,
-  reads each agent's report, and keeps going until the goal is met. The Builder writes real
-  multi-file changes; the Reviewer runs the project's *actual* toolchain (`tsc`, lint, build,
-  tests) as ground truth so it never declares broken code "done."
-- **You stay in control.** Reviewable file-change cards with diffs, approval-gated command
-  running (allowlisted), spend caps, Pause (graceful) and Stop (instant), and Git-independent
-  restore points (undo).
-- **See it run.** A live in-app preview launches the project's dev server (Vite/HMR) or
-  serves static builds, updating as the team edits. Download the whole workspace as a ZIP.
-- **Built for overnight runs.** Queue several goals and they start automatically, one
-  project after another, when the current run finishes. Desktop notifications when a
-  run completes or needs you; a Run history panel records each run's duration, steps,
-  criteria met, and cost. Lean prompting resends only changed files to the model, and
-  the loop skips redundant manager calls on the standard build→test path.
-- **Extras.** Image input (Pixel vision), project knowledge docs, cross-project agent
-  memory, a credential vault for the browser agent, a first-run setup wizard, and a
-  guided welcome tour. AI connections and settings are global — they survive project
-  switches and deletions.
+## Install (Windows 10/11)
 
-## Run locally
+**Recommended — Microsoft Store** (one click, auto-updates, no SmartScreen warning):
+[Get Crinkle from the Microsoft Store](https://apps.microsoft.com/detail/9PLZXNXNXT29).
+
+**Any OS with Node 20+:** `npx crinkle`
+
+**Standalone installer** (this repo):
+
+1. Download [Crinkle-Setup.exe](https://github.com/CrinkleAIDev/crinkle-releases/releases/latest/download/Crinkle-Setup.exe) (about 104 MB).
+2. Run it. The standalone build is not yet code-signed, so Windows SmartScreen will warn
+   the first time: click **More info → Run anyway**. Verify the checksum below first if you
+   want certainty about what you're running.
+3. Crinkle opens as a desktop app. Connect any model you already have (OpenAI, Anthropic,
+   Gemini, NVIDIA NIM, or a local model via Ollama / LM Studio / Open WebUI) and go.
+
+## Verify your download
+
+PowerShell:
 
 ```powershell
-npm install
-npm run dev
+Get-FileHash "$env:USERPROFILE\Downloads\Crinkle-Setup.exe" -Algorithm SHA256
 ```
 
-This starts both the Crinkle API (port 4317) and the Vite UI concurrently. Open the local
-URL Vite prints (typically http://localhost:5173).
+The output must match the table below exactly. You can also look the hash up on
+VirusTotal: paste it into [virustotal.com](https://www.virustotal.com/gui/home/search).
 
-### Optional capabilities
+| Version | File | SHA-256 |
+|---|---|---|
+| 0.2.0 (beta) | Crinkle-Setup.exe | `288A402EFCE5B41CF268E1853425C2007BF5E3AB4694AD8DD2B6CE10D2E01D3E` |
+| 0.1.0-alpha.17 | Crinkle-Setup.exe | `D93682F585B790D9524745F665263E49D3B5941029E9659BC83294EB0DC350CF` |
 
-- **Browser agent (Scout):** `npm i playwright && npx playwright install chromium`.
-  Without it, everything else works and Scout is cleanly disabled.
-- **Git version history / auto-commit:** install Git and have it on your PATH. Without it,
-  Crinkle falls back to its own restore points (`data/checkpoints/`).
+Every release also ships `latest.yml`, electron-builder's update metadata, which embeds
+its own SHA-512 of the installer.
 
-## How it works
+## What runs where
 
-```text
-UI  ->  Orchestrator / agent loop  ->  Provider adapters  ->  Isolated workspace
-                  |                                                   |
-            Task + state store                              File changes, commands,
-            (data/relay-state.json)                         tests, preview, ZIP
-```
+- **Local:** your projects, code, run history, and provider API keys never leave your
+  machine. Keys are encrypted at rest with Windows DPAPI. The agents, the browser-based
+  verification, and the preview server all run locally.
+- **Network calls the app makes:** (1) the AI providers **you** connect, with your own
+  keys or subscriptions; (2) github.com, to check this repo for a newer release;
+  (3) optional anonymous usage counters that you can turn off in Settings. There is no
+  account requirement and no telemetry containing your code or prompts.
+- Full details: [privacy policy](https://www.crinkle.dev/privacy.html) ·
+  [terms](https://www.crinkle.dev/terms.html).
 
-A role such as "coder" is decoupled from its provider, so the Builder can run on Claude Code,
-Codex, or any API model without changing the user-facing workflow.
+## Code signing
 
-### Project layout
+The beta installer is unsigned; Authenticode signing is planned before the stable
+release (the release pipeline already refuses to ship a public beta build without a
+valid signature once a certificate is configured). Until then, the checksum table above
+is the integrity mechanism.
 
-| Path              | What's there                                                            |
-| ----------------- | ----------------------------------------------------------------------- |
-| `server/`         | Node HTTP API, agent loop, provider adapters, workspace + safety tools  |
-| `src/`            | React + TypeScript (Vite) frontend                                      |
-| `tests/`          | `node --test` suite (`npm test`) + live-loop harness                    |
-| `data/`           | Local state, encrypted secrets, checkpoints, knowledge (gitignored)     |
-| `workspaces/`     | Isolated per-project build folders                                      |
+## History
 
-Key server modules: `agentLoop.mjs` (autonomous orchestration), `providers.mjs` (all AI
-adapters, routing, streaming, context budgeting), `workspace.mjs` (file ops + approval),
-`toolchain.mjs` (real quality gate), `browser.mjs` (Scout), `security.mjs`, `state.mjs`.
+Crinkle was briefly developed under the working name "Relay", which is why very old
+links may mention `relay-releases` — GitHub redirects them here. Same product, same team.
 
-## Testing
+## Support
 
-```powershell
-npm test          # unit/logic tests (node --test)
-```
-
-The autonomous loop is unit-tested at the helper level. To exercise the full connected
-loop end to end, point a provider at a local model (e.g. Ollama) and run
-`node tests/live-loop.mjs`.
-
-## Status & roadmap
-
-Crinkle is a working local product, not a hosted service. Current focus areas:
-
-- Splitting the large frontend (`App.tsx` / `styles.css`) into smaller components
-- Migrating state persistence from a JSON flat file to SQLite
-- Streaming live tokens into the UI (the backend already streams; the UI updates per turn)
-- Azure OpenAI / Amazon Bedrock adapters if enterprise users need them
-
-## License
-
-Crinkle is **free to use** for personal and commercial work, and **everything you build with it is yours**. The software itself may not be redistributed or resold — see [LICENSE](LICENSE) for the full terms.
-
+support@crinkle.dev · [crinkle.dev](https://www.crinkle.dev)
