@@ -1,4 +1,4 @@
-# Crinkle — desktop releases
+# Crinkle — official releases
 
 Official download repository for **[Crinkle](https://www.crinkle.dev)**, the autonomous
 AI software team that runs on your machine and refuses to call a project done until the
